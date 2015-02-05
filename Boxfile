@@ -1,0 +1,12 @@
+web1:
+  type: php
+  version: 5.4
+  stability: production
+
+  php_extensions:
+    - curl
+    - dom
+    - eaccelerator
+    - memcache
+    - mysql
+    - xml
