@@ -1,0 +1,145 @@
+/**
+ * Body / Defaults
+ */
+body {
+  background-color: #333;
+}
+
+/**
+ * Show
+ */
+.show {
+  position:relative;
+  padding:0;
+  height: 225px;
+  border-right:1px solid #1c1c1c;
+  border-bottom:1px solid #1c1c1c;
+  background-color: #333;
+  text-align: center;
+  cursor: pointer;
+  overflow:hidden;
+}
+  .show:before {
+    position:absolute;
+    top:0;left:0;
+    padding-top:0px;
+    width:100%;height:100%;
+    content:'\f008';
+    font-family: "fontawesome";
+    color:white;
+    font-size: 120px;
+    text-align:center;
+    opacity:0.25;
+  }
+  .show:nth-child(4n), 
+  .show:last-child { 
+    border-right: none; 
+  }
+
+  /**
+   * Show Info
+   */
+  .show__info {
+    position:absolute;
+    left:0;bottom:0;
+    z-index:2;
+    width:100%;
+    height:30%;
+    padding:15px;
+    vertical-align: middle;
+    text-align: center;
+    color: white;
+    background-color: rgba(0,0,0, 0.45);
+
+    /* transition */
+    transition: all 250ms ease-in-out;
+  }
+    .show__info:hover { 
+      background-color: rgba(0,0,0, 0.85); 
+      height:100%;
+      padding: 45px 20px;
+    }
+    .show__info:hover .show__play { 
+      visibility: visible;
+      opacity:1;
+      transition-delay: 150ms;
+    }
+  
+
+    .show__title {
+      margin-top:0;
+      margin-bottom: 5px;
+    }
+    .show__meta {
+      font-size: 12px;
+    }
+
+
+  /**
+   * Show Play
+   */
+  .show__play {
+    margin: 15px auto;
+    font-size:80px;
+    color: white;
+
+
+    /* transition */
+    transition: opacity 100ms ease-in-out;
+    transition-delay: 0ms;
+    opacity:0;
+  }
+    .show__play:hover {
+      color: #d32c2c;
+    }
+
+  
+  /**
+   * Show Cover Photo
+   */
+  .show__cover-photo {
+    position:absolute;
+    left:0;top:0;
+    width:100%;
+    height:100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+
+  }
+
+
+@media screen and (max-width: 768px) {
+  .show {
+    height:400px;
+  }
+    .show__info {
+      padding: 15px;
+      height:25%;
+    } 
+      .show__info:hover { padding: 120px 20px; }
+      .show__title {
+        font-size: 24px;
+      }
+  
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Bootstrap Overrides
+ */
+.navbar {
+  margin:0;
+}

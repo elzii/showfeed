@@ -141,8 +141,8 @@ var APP = (function () {
           app.$el.shows.append('\
             <div class="show col-md-3"> \
               <div class="show__info"> \
-                <h4 class="show-title">' + show_info.title + ' ' + show_info.sxe + '</h4> \
-                <h6><b>' + release_day_of_week + '</b> - ' + release_date + '</h6> \
+                <h4 class="show__title">' + show_info.title + ' ' + show_info.sxe + '</h4> \
+                <div class="show__meta"><b>' + release_day_of_week + '</b> - ' + release_date + '</div> \
                 <a href="' + show.link + '"><i class="show__play fa fa-play-circle"></i></a> \
               </div> \
               <div class="show__cover-photo" style="background-image:url(\'' + cover_image_src + '\')"></div> \
