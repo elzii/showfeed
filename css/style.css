@@ -2,24 +2,55 @@
  * Body / Defaults
  */
 body {
-  background-color: #333;
+  background-color: #fff;
+  /*background-color: #f9f9f9;*/
 }
+  body.shows--grid { background-color: #333; }
+  body.shows--list { background-color: #fff; }
+
+
+.shows__header {
+  margin-bottom: 30px !important;
+  position:relative;
+} 
+  .shows__header:after { content:''; display:table; clear:both; }
+
+  .shows__header-inner {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom:20px;
+  }
+
+  .shows__header .shows__header-left {
+    float: left;
+    width:50%;
+  }
+  .shows__header .shows__header-right {
+    float: left;
+    width:50%;
+    text-align: right;
+  }
+
 
 /**
  * Show
+ *
+ * Grid format
+ * 
  */
-.show {
+.show--grid {
   position:relative;
   padding:0;
   height: 225px;
+  float:left;
   border-right:1px solid #1c1c1c;
   border-bottom:1px solid #1c1c1c;
   background-color: #333;
   text-align: center;
-  cursor: pointer;
   overflow:hidden;
+  width:25%;
 }
-  .show:before {
+  .show--grid:before {
     position:absolute;
     top:0;left:0;
     padding-top:0px;
@@ -31,15 +62,15 @@ body {
     text-align:center;
     opacity:0.25;
   }
-  .show:nth-child(4n), 
-  .show:last-child { 
+  .show--grid:nth-child(4n), 
+  .show--grid:last-child { 
     border-right: none; 
   }
 
   /**
    * Show Info
    */
-  .show__info {
+  .show--grid .show__info {
     position:absolute;
     left:0;bottom:0;
     z-index:2;
@@ -50,27 +81,28 @@ body {
     text-align: center;
     color: white;
     background-color: rgba(0,0,0, 0.45);
+    cursor: pointer;
 
     /* transition */
     transition: all 250ms ease-in-out;
   }
-    .show__info:hover { 
+    .show--grid .show__info:hover { 
       background-color: rgba(0,0,0, 0.85); 
       height:100%;
       padding: 45px 20px;
     }
-    .show__info:hover .show__play { 
+    .show--grid .show__info:hover .show__play { 
       visibility: visible;
       opacity:1;
       transition-delay: 150ms;
     }
   
 
-    .show__title {
+    .show--grid .show__title {
       margin-top:0;
       margin-bottom: 5px;
     }
-    .show__meta {
+    .show--grid .show__meta {
       font-size: 12px;
     }
 
@@ -78,7 +110,7 @@ body {
   /**
    * Show Play
    */
-  .show__play {
+  .show--grid .show__play {
     margin: 15px auto;
     font-size:80px;
     color: white;
@@ -89,7 +121,7 @@ body {
     transition-delay: 0ms;
     opacity:0;
   }
-    .show__play:hover {
+    .show--grid .show__play:hover {
       color: #d32c2c;
     }
 
@@ -97,7 +129,7 @@ body {
   /**
    * Show Cover Photo
    */
-  .show__cover-photo {
+  .show--grid .show__cover-photo {
     position:absolute;
     left:0;top:0;
     width:100%;
@@ -105,30 +137,167 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
     background-position: 50% 50%;
-
   }
 
 
-@media screen and (max-width: 768px) {
-  .show {
-    height:400px;
+
+
+/**
+ * Show
+ *
+ * List Format
+ * 
+ */
+.show--list {
+  height:115px;
+  border-bottom: 1px solid #eee;
+}
+  .show--list:last-child { border-bottom: none; }
+  .show--list:after {
+    content:'';
+    display:table;
+    clear:both;
   }
-    .show__info {
-      padding: 15px;
-      height:25%;
-    } 
-      .show__info:hover { padding: 120px 20px; }
-      .show__title {
-        font-size: 24px;
-      }
+
+  .show--list .show__cover-photo {
+    position: relative;
+    float: left;
+    width: 175px;
+    height: 100%;
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+    /*border: 1px solid #999;*/
+  }
+  .show--list .show__cover-photo:hover .show__play {
+    opacity:1;
+    color: rgba(211, 44, 44, 0.95);
+  }
+
+  .show--list .show__cover-photo:before {
+
+  }
+    .show--list .show__play {
+      position:absolute;
+      top:0;left:0;
+      width:100%;height:100%;
+      text-align: center;
+      color: rgba(211, 44, 44, 0.8);
+      font-size:50px;
+      line-height:115px;
+      background-color: rgba(0,0,0, 0.65);
+
+      /* transition */
+      transition: all 150ms ease-in-out;
+      opacity:0;
+    }
+    
+
+  .show--list .show__info {
+    float: left;
+    padding-left: 25px;
+  }
+
+  .show--list .show__info:hover {
+
+  }
+
+    .show--list .show__title { margin:20px 0 0 0; }
+    .show--list .show__sxe { margin:0 0 5px 0; }
+
+
+/**
+ * Show List Group
+ */
+.show-list-group {
+  background-color:#fbfbfb;
+  margin-bottom: 45px;
+  border: 1px solid #eee;
+}
+  .show-list-group__header {
+    background-color: #f7f7f7;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding: 15px;
+  }
   
 
+
+
+
+
+
+
+
+
+/**
+ * Media WIDESCREEN
+ */
+@media (max-width: 1240px) {
+  /* GRID */
+  .show--grid  {
+    height:270px;
+    width:33.3333333333337%;
+  }
+    .show--grid .show__info { height: 25%; } 
+      .show--grid .show__info:hover { padding: 190px 20px; }
+      .show--grid .show__title { font-size: 18px; }
+}
+
+/**
+ * Media TABLET
+ */
+@media (max-width: 980px) {
+
+  /* GRID */
+  .show--grid .show {
+    height:270px;
+    width:50%;
+  }
+    .show--grid .show__info { height: 25%; } 
+      .show--grid .show__info:hover { padding: 120px 20px; }
+      .show--grid .show__title { font-size: 18px; }
+}
+/**
+ * Media MOBILE
+ */
+@media (max-width: 768px) {
+  .show--grid  {
+    height:380px;
+    width:100%;
+  }
+    .show--grid .show__info { height: 25%; } 
+      .show--grid .show__info:hover { padding: 120px 20px; }
+      .show--grid .show__title { font-size: 18px; }
 }
 
 
 
 
 
+/**
+ * Shows Upcoming
+ */
+#shows__upcoming {
+  width: 300px;
+}
+
+.shows__upcoming-list {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+  .shows__upcoming-group {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  .shows__upcoming-group:last-of-type { border-bottom: 0; }
+    .shows__upcoming-day {
+      display:block;
+    }
+    .shows__upcoming-show {
+      display:block;
+      margin-bottom: 5px;
+    }
 
 
 
@@ -142,4 +311,15 @@ body {
  */
 .navbar {
   margin:0;
+}
+.m0 { margin:0; }
+.label-large {
+  font-size:12px;
+}
+.label-icon {
+  /*font-size:10px;*/
+}
+.label .glyphicon {
+  position: relative;
+  top: 2px;
 }

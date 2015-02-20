@@ -21,10 +21,41 @@
 
 </head>
 <body>
+  
 
+  <div id="shows__header" class="shows__header navbar navbar-default"style="display:none;">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">
+          <span>ShowFeed</span>
+        </a>
+      </div>
+      <div class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-target="#menu--filter" data-toggle="dropdown" >Filter <span class="caret"></span></a>
+          <ul id="menu--filter" class="dropdown-menu" role="menu">
+            <li><a href="#">Group By Weekday</a></li>
+            <li class="divider"></li>
+            <li><a href="#">Oldest to Newest</a></li>
+          </ul>
+        </li>
+      </div>
 
-  <div class="container-fluid">
-    <div id="shows" class="row"></div>
+      <div class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-target="#shows__upcoming" data-toggle="dropdown" >Upcoming <span class="caret"></span></a>
+          <ul id="shows__upcoming" class="dropdown-menu dropdown-menu-big" role="menu">
+            <div class="shows__upcoming-list"></div>
+          </ul>
+        </li>
+      </div>
+
+    </div>
+  </div>
+
+  
+  <div id="shows__container" class="container-fluid">
+    <div id="shows" class=""></div>
   </div>
 
 
@@ -32,6 +63,7 @@
 
   <!-- Javascript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="js/lib/director.min.js"></script>
   <script src="js/app.js"></script>
 
   <script>
