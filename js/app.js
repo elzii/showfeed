@@ -72,13 +72,10 @@ var APP = (function () {
     // routing
     this.routing.init()
 
-    this.routing.clearViews()
-
     // plugin init & general event bindings
     this.plugins()
     this.events()
     
-
   }
 
 
@@ -628,15 +625,14 @@ var APP = (function () {
 
       var _this = app.routing;
 
+      
       /**
        * GET /
        */
-      routie('', function () {
-        
-        _this.showView( app.$el.views.index )
-         
-      })
+      _this.showView( app.$el.views.index )
+      // routie('', function () {})
 
+      
 
       /**
        * GET /#feed
@@ -653,12 +649,15 @@ var APP = (function () {
       /**
        * GET /#feed/:encodeduri
        */
-      routie('feed/:encodeduri', function (encoded_uri) {
-         
-         var encoded_uri = decodeURIComponent(atob(encoded_uri)) || '';
+      // routie('feed/:encodeduri', function (encoded_uri) {
 
-          console.log('loading feed uri: ', encoded_uri)
-      })
+      //   _this.showView( app.$el.views.feed )
+         
+      //   var encoded_uri = decodeURIComponent(atob(encoded_uri)) || '';
+
+      //   console.log('loading feed uri: ', encoded_uri)
+
+      // })
 
     },
 
@@ -673,8 +672,7 @@ var APP = (function () {
 
       $view.show()
 
-
-      if ( app.config.debug ) console.log('%cROUTER:', 'color:#e65ad7', 'Clearing views')
+      if ( app.config.debug ) console.log('%cROUTER:', 'color:#e65ad7', $view.selector )
     }
 
   }
