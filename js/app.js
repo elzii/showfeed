@@ -31,6 +31,17 @@ var APP = (function () {
       shows : $('#shows'),
       
       shows_upcoming : $('#shows__upcoming'),
+
+      loader : $('#loader'),
+
+      nav : {
+        upcoming : $('#nav--upcoming')
+      },
+
+      views : {
+        index : $('#view--index'),
+        feed : $('#view--feed'),
+      }
     },
 
     settings : {
@@ -58,11 +69,15 @@ var APP = (function () {
    */
   app.init = function () {
 
+    // routing
+    this.routing.init()
+
+    this.routing.clearViews()
+
+    // plugin init & general event bindings
     this.plugins()
     this.events()
     
-    this.showFeed.init()
-    this.showSchedule.init()
 
   }
 
@@ -73,11 +88,9 @@ var APP = (function () {
    */
   app.plugins = function() {
 
-    // Ender
-    if ( $.ender ) {
-      $.ender({
-        router: Router
-      })
+    // Routie
+    if ( window.routie && window.routie !== undefined ) {
+      if ( app.config.debug ) console.log('%cPLUGIN:', 'color:#8e2fb1', 'routie.js')
     }
   }
 
@@ -112,6 +125,8 @@ var APP = (function () {
 
     debug : false,
 
+    date_offset : -1,
+
     template : {
       grid : 'templates/_show-grid.html',
       list : 'templates/_show-list.html',
@@ -134,6 +149,8 @@ var APP = (function () {
 
       var _this = app.showFeed;
 
+      app.loader.show()
+
       // Render Show Feed
       this.renderShowFeed( {
         url             : app.feeds.showrss_all,
@@ -141,8 +158,13 @@ var APP = (function () {
         sort_by_day     : true,
         container_class : 'container'
       }, function (data) {
-        // callback
-        console.log( 'Render Show Feed Callback' )
+        // callback 
+        
+        app.$el.shows_container.show()
+        app.loader.hide()
+        
+        if ( app.config.debug ) console.log('%cCALLBACK:', 'color:#66d9ef', 'renderShowFeed()' )
+
       })
 
     },
@@ -218,8 +240,8 @@ var APP = (function () {
 
         // Wait for template to be read
         $.get( template ).done(function (html) {
-          
-          if ( _this.debug ) console.log( 'Loaded template -> ', html )
+
+          if ( app.config.debug ) console.log('%cTEMPLATE:', 'color:#d79c29', template )
 
           $.each(items, function (i, show) {
 
@@ -283,7 +305,7 @@ var APP = (function () {
           // Render if we sorted by day
           if ( sort_by_day ) {
 
-            console.log('Sorting shows in list view day groups')
+            if ( app.config.debug ) console.log('%cSUBROUTINE:', 'color:#2b7723', 'getShowFeed( sort_by_day )')
 
             $.each( date_grouped_html, function (date_index, show_data ) {
 
@@ -404,19 +426,28 @@ var APP = (function () {
       }
     },
 
+    /**
+     * Initialize
+     */
     init: function() {
 
       var _this = app.showSchedule;
 
       _this.getShowScheduleFeed( app.feeds.showrss_schedule, function (data) {
 
-        if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'getShowScheduleFeed()', data)
+        if ( app.config.debug ) console.log('%cCALLBACK:', 'color:#66d9ef', 'getShowScheduleFeed()' )
 
         // Populate the calendar object
         _this.populateShowCalendar( data, function (schedule) {
 
+          if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'populateShowCalendar()')
+
           // Render the upcoming show list
           _this.renderUpcomingShowList( schedule, function ( days ) {
+
+            app.$el.nav.upcoming.show()
+
+            if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'renderUpcomingShowList()')
 
           })
         } )
@@ -487,7 +518,8 @@ var APP = (function () {
 
       callback( _this.calendar.weekly )
 
-      if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'populateShowCalendar()', _this.calendar.weekly )
+      if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'populateShowCalendar()' )
+      // if ( app.config.debug ) console.log( this.feeds.showrss_all )
 
     },
 
@@ -505,20 +537,22 @@ var APP = (function () {
           $upcoming = app.$el.shows_upcoming.find('.shows__upcoming-list')
 
       
-
+      // Loop through schedule
       $.each( schedule, function (day, shows) {
           
         var html      = '',
-            day_name  = dayAbbreviationToFull(day),
-            day_num   = getDayNumberFromString(day),
+            day_name  = dayAbbreviationToFull( day ),
+            day_num   = getDayNumberFromString( day, false ), // offset
             today_num = (new Date()).getDay()
 
         // Skip if prior to today
-        // if ( day_num < today_num ) return true;
+        if ( day_num < (today_num-1) ) return true;
 
         // Build HTML string
         html += '<li class="shows__upcoming-group">';
         html += '<h5 class="shows__upcoming-day">' + day_name + '</h5>';
+
+        if ( shows.length == 0 ) return true;
 
         shows.forEach( function (show, i) {
           
@@ -532,16 +566,118 @@ var APP = (function () {
 
       })
 
+      callback()
+
       if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'renderUpcomingShowList()' )
 
     },
 
 
+  }
 
+
+
+  /**
+   * Loader
+   */
+  app.loader = {
+
+    show : function() {
+
+      app.$el.loader.show()
+
+    },
+
+    hide : function() {
+
+      app.$el.loader.hide()
+
+    }
 
   }
 
 
+
+  /**
+   * Routing
+   *
+   * @depencies routie.js
+   */
+  app.routing = {
+
+    /**
+     * Initialize
+     */
+    init: function() {
+
+      // Check routie dependency
+      if ( !window.routie || window.routie === undefined ) return false;
+      
+      this.routes()
+
+    },
+
+    /**
+     * Routes
+     *
+     * /
+     * #feed/
+     * #feed/:encodeduri
+     */
+    routes : function() {
+
+      var _this = app.routing;
+
+      /**
+       * GET /
+       */
+      routie('', function () {
+        
+        _this.showView( app.$el.views.index )
+         
+      })
+
+
+      /**
+       * GET /#feed
+       */
+      routie('feed', function () {
+        
+        _this.showView( app.$el.views.feed )
+
+        app.showFeed.init()
+        app.showSchedule.init()
+         
+      })
+
+      /**
+       * GET /#feed/:encodeduri
+       */
+      routie('feed/:encodeduri', function (encoded_uri) {
+         
+         var encoded_uri = decodeURIComponent(atob(encoded_uri)) || '';
+
+          console.log('loading feed uri: ', encoded_uri)
+      })
+
+    },
+
+    /**
+     * Show View
+     */
+    showView : function($view) {
+
+      $.each( app.$el.views, function (key, view) {
+        view.hide()
+      })
+
+      $view.show()
+
+
+      if ( app.config.debug ) console.log('%cROUTER:', 'color:#e65ad7', 'Clearing views')
+    }
+
+  }
 
 
 
@@ -549,10 +685,41 @@ var APP = (function () {
   /**
    * Regular Expressions
    */
-  app.showRegex = {
-    first_word : /(^[A-Z])\w+/g,
+  app.regex = {
+
+    first_word    : /(^[A-Z])\w+/g,
     detail_groups : /(.*?)\.S?(\d{1,2})E?(\d{2})\.(.*)/g
+
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -603,12 +770,7 @@ var APP = (function () {
 
       callback(data)
     })
-  }
-
-
-
-
-  
+  }  
 
 
   /**
@@ -652,11 +814,17 @@ var APP = (function () {
   /**
    * Format Published Date
    */
-  function formatPubDate( date_str, format ) {
+  function formatPubDate( date_str, format, offset ) {
     
-    var format = ( format !== undefined ) ? format : 'full'
+    var format = ( format !== undefined ) ? format : 'full',
+        offset = offset ? offset : true;
 
-    var date = new Date(date_str)
+    var date = new Date( date_str )
+
+    // Offset to correct
+    if ( offset ) {
+      date.setHours( date.getHours() - 24 )
+    }
 
     if ( format == 'full' ) {
 
@@ -857,7 +1025,12 @@ var APP = (function () {
     }
   }
 
-
+  /**
+   * Day Abbreviation To Fullname
+   * 
+   * @param  {String} day 
+   * @return {String} 
+   */
   function dayAbbreviationToFull( day ) {
 
     var days = {
@@ -874,7 +1047,12 @@ var APP = (function () {
   }
 
 
-
+  /**
+   * Date Slug from Date String
+   * 
+   * @param  {String} str 
+   * @return {String}     
+   */
   function dateSlugFromString( str ) {
 
     return str
@@ -885,6 +1063,12 @@ var APP = (function () {
       .toLowerCase()
   }
 
+  /**
+   * Date String from Date Slug
+   * 
+   * @param  {String} slug 
+   * @return {String}      
+   */
   function dateStringFromSlug( slug ) {
 
     slug = slug.charAt(0).toUpperCase() + slug.slice(1)
@@ -896,8 +1080,18 @@ var APP = (function () {
 
   }
 
+  /**
+   * Get Day Number from String
+   * 
+   * @param  {String} day    
+   * @param  {Boolean} offset
+   *  
+   * @return {String}        
+   */
+  function getDayNumberFromString( day, offset ) { // offset
 
-  function getDayNumberFromString( day, slug ) {
+    var day     = day || '',
+        offset  = offset ? offset : false;
 
     var day_nums = {
       'mon' : 1,
@@ -909,10 +1103,19 @@ var APP = (function () {
       'sun' : 7
     };
 
-    return day_nums[day];
+    if ( offset ) {
+      return day_nums[day - 1]
+    } else {
+      return day_nums[day]
+    }
   }
 
-
+  /**
+   * Size Prototype
+   * 
+   * @param  {Object} obj 
+   * @return {Integer}     
+   */
   Object.size = function(obj) {
     var size = 0, key;
     for (key in obj) {
@@ -920,6 +1123,14 @@ var APP = (function () {
     }
     return size;
   };
+
+
+
+
+
+
+
+
 
 
   /**
