@@ -347,6 +347,7 @@ body {
   position: relative;
   top: 2px;
 }
+.text-left { text-align: left !important; }
 
 
 .navbar-logo-icon {

@@ -21,6 +21,10 @@ var APP = (function () {
       debug_console: false
     },
 
+    // URLs
+    url : {
+      site : window.location.href.match(/(localhost)/g) ? 'http://localhost/projects/showfeed/' : 'http://showfeed.io/'
+    },
 
     // Elements
     $el : {
@@ -35,7 +39,12 @@ var APP = (function () {
       loader : $('#loader'),
 
       nav : {
+        main : $('#nav--main'),
         upcoming : $('#nav--upcoming')
+      },
+
+      form : {
+        create_feed : $('#form--create_feed'),
       },
 
       views : {
@@ -75,6 +84,7 @@ var APP = (function () {
     // plugin init & general event bindings
     this.plugins()
     this.events()
+    this.forms.init()
     
   }
 
@@ -109,6 +119,57 @@ var APP = (function () {
       $(targetID).toggle().toggleClass('show')
 
     })
+
+  }
+
+  /**
+   * Forms
+   */
+  app.forms = {
+
+    init: function() {
+
+      var _this = app.forms;
+
+      _this.create_feed()
+    },
+
+
+    create_feed: function() {
+
+      var $form = app.$el.form.create_feed;
+
+      $form.on('submit', function (event) {
+
+        event.preventDefault()
+
+        var $this      = $(this),
+            $submit    = $this.find('button[type=submit]'),
+            feed_url   = $this.find('input[name=feed_url]').val(),
+            $your_feed = $this.find('input[name=your_feed]');
+
+            feed_url   = btoa( feed_url )
+
+        // Toggle submit classes
+        $submit
+          .toggleClass('btn-primary btn-success')
+          .attr('disabled', 'disabled')
+          .text('Success')
+          .blur()
+
+        // Display new feed hash url
+        $your_feed
+          .show()
+          .val( app.url.site + '#feed/' + feed_url )
+          .parent()
+          .addClass('has-success')
+        
+          
+
+        if ( app.config.debug ) console.log('%cFORM:', 'color:#ec344a', 'create_feed' )
+      })
+
+    },
 
 
   }
@@ -294,6 +355,7 @@ var APP = (function () {
             } else {
 
               // Append to shows container
+              app.$el.shows.empty()
               app.$el.shows.append( $html )
             }
 
@@ -303,6 +365,8 @@ var APP = (function () {
           if ( sort_by_day ) {
 
             if ( app.config.debug ) console.log('%cSUBROUTINE:', 'color:#2b7723', 'getShowFeed( sort_by_day )')
+
+            app.$el.shows.empty()
 
             $.each( date_grouped_html, function (date_index, show_data ) {
 
@@ -411,17 +475,6 @@ var APP = (function () {
    */
   app.showSchedule = {
 
-    calendar : {
-      weekly : {
-        'mon' : [],
-        'tue' : [],
-        'wed' : [],
-        'thu' : [],
-        'fri' : [],
-        'sat' : [],
-        'sun' : []
-      }
-    },
 
     /**
      * Initialize
@@ -430,6 +483,7 @@ var APP = (function () {
 
       var _this = app.showSchedule;
 
+      // Get the show schedule feed
       _this.getShowScheduleFeed( app.feeds.showrss_schedule, function (data) {
 
         if ( app.config.debug ) console.log('%cCALLBACK:', 'color:#66d9ef', 'getShowScheduleFeed()' )
@@ -452,6 +506,15 @@ var APP = (function () {
       })
 
     },
+
+
+    hide: function() {
+
+      app.$el.shows_upcoming.hide()
+      app.$el.nav.upcoming.hide()
+
+    },
+
 
     /**
      * Get Show Schedule Feed
@@ -497,23 +560,35 @@ var APP = (function () {
      */
     populateShowCalendar: function(shows, callback) {
 
-      var _this = app.showSchedule,
-          shows = shows || {},
-          data  = {};
+      var _this    = app.showSchedule,
+          shows    = shows || {},
+          data     = {},
+          calendar = {
+            weekly : {
+              'mon' : [],
+              'tue' : [],
+              'wed' : [],
+              'thu' : [],
+              'fri' : [],
+              'sat' : [],
+              'sun' : []
+            }
+          };
 
       shows.forEach( function (show, i) {
 
         var day = getDayNameFromPubDate( show.pubDate )        
 
         // write to calendar
-        _this.calendar.weekly[day].push({
+        calendar.weekly[day]
+        calendar.weekly[day].push({
           title : show.title,
           link  : show.link
         })
 
       })
 
-      callback( _this.calendar.weekly )
+      callback( calendar.weekly )
 
       if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'populateShowCalendar()' )
       // if ( app.config.debug ) console.log( this.feeds.showrss_all )
@@ -533,6 +608,7 @@ var APP = (function () {
           schedule  = schedule || {},
           $upcoming = app.$el.shows_upcoming.find('.shows__upcoming-list')
 
+      $('.shows__upcoming-list').empty()
       
       // Loop through schedule
       $.each( schedule, function (day, shows) {
@@ -625,26 +701,39 @@ var APP = (function () {
 
       var _this = app.routing;
 
-      
+
       /**
        * GET /
        */
-      _this.showView( app.$el.views.index )
-      // routie('', function () {})
+      routie('', function () {
+        // Redirect
+        routie('#home')
+      })
 
       
+      /**
+       * GET /#home
+       */
+      routie('home', function () {
 
+        _this.showView( app.$el.views.index )
+        _this.setActiveNavItem( 'home' )
+
+      })
+      
       /**
        * GET /#feed
        */
-      routie('feed', function () {
+      routie('feed', function (page) {
         
         _this.showView( app.$el.views.feed )
+        _this.setActiveNavItem( 'feed' )
 
         app.showFeed.init()
         app.showSchedule.init()
          
       })
+
 
       /**
        * GET /#feed/:encodeduri
@@ -670,9 +759,30 @@ var APP = (function () {
         view.hide()
       })
 
+      // Hide misc subview components
+      app.$el.nav.upcoming.hide()
+
       $view.show()
 
       if ( app.config.debug ) console.log('%cROUTER:', 'color:#e65ad7', $view.selector )
+    },
+
+
+    /**
+     * Set Active Nav Item
+     */
+    setActiveNavItem: function(hash) {
+
+      var _this = app.router,
+          hash  = hash || '',
+          $nav  = app.$el.nav.main;
+
+      var lis = $nav.find('li'),
+          li  = $nav.find('a[href="#'+hash+'"]').parent()
+
+      lis.removeClass('active')
+      li.addClass('active')
+
     }
 
   }
