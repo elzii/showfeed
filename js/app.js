@@ -144,7 +144,6 @@ var APP = (function () {
 
     })
 
-    // app.$el.get.show_desc.on('click', function (event) {
     $(document).on('click', '.get--show_desc', function (event) {
 
       event.preventDefault()
@@ -153,6 +152,7 @@ var APP = (function () {
           show_name     = $this.data('show-name'),
           episode_date  = $this.data('episode-date'),
           $show_desc    = $this.parent().parent().find('.show__desc-inner');
+
 
       tvdb.getSeriesID( show_name.toLowerCase(), function (series_id) {
 
@@ -279,53 +279,6 @@ var APP = (function () {
         app.$el.shows_container.show()
         app.loader.hide()
         
-
-      })
-
-    },
-
-    bindEvents: function() {
-
-      console.log('events bound')
-
-      $('.show').hover(function (event) {
-
-        event.preventDefault()
-
-        var $this             = $(this),
-            request_complete  = $this.data('request-complete'),
-            show_name         = $this.find('.get--show_desc').data('show-name'),
-            episode_date      = $this.find('.get--show_desc').data('episode-date'),
-            $show_desc        = $this.find('.show__desc-inner');
-
-        if ( !request_complete ) {
-
-          tvdb.getSeries( show_name.toLowerCase(), true, function (series) {
-            console.log('series', series)
-          })
-
-          tvdb.getSeriesID( show_name.toLowerCase(), function (series_id) {
-
-            tvdb.getEpisodesByAirDate(series_id, episode_date, function (episode) {
-
-              var episode = episode || {};
-
-              if ( episode.Overview == undefined ) {
-                $show_desc.html( 'Could not find episode synopsis.' ).fadeIn(150)
-              } else {
-                $show_desc.html( episode.Overview ).fadeIn(150)
-              }
-
-              // Set flag
-              $this.data('request-complete', true)
-
-            })
-
-          })
-
-        } else {
-          console.log('Already got data')
-        }
 
       })
 
@@ -516,9 +469,6 @@ var APP = (function () {
 
           // Callback
           callback(items)
-
-          // Bind events
-          _this.bindEvents()
 
           if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'populateShowCalendar()')
         })
