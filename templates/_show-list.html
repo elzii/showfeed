@@ -9,11 +9,14 @@
     <a href="{{link}}">
       <span class="label label-large label-danger label-icon"><i class="glyphicon glyphicon-magnet"></i></span>
     </a>
-    <a href="javascript:;" class="get--show_info">
+    <span class="get--show_desc" data-show-name="{{title}}" data-episode-date="{{pub_date}}">
       <span class="label label-large label-info label-icon"><i class="glyphicon glyphicon-info-sign"></i></span>
-    </a>
+    </span>
     <span class="label label-large label-primary">{{release_day_of_week}}</span>
     <span class="label label-large label-default">{{release_date}}</span>
 
+  </div>
+  <div class="show__desc">
+    <div class="show__desc-inner"></div>
   </div>
 </div>

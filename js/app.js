@@ -54,6 +54,10 @@ var APP = (function () {
       shows_header : $('#shows__header'),
       shows_container : $('#shows__container'),
       shows : $('#shows'),
+
+      get : {
+        show_desc : $('.get--show_desc'),
+      },
       
       shows_upcoming : $('#shows__upcoming'),
 
@@ -139,6 +143,36 @@ var APP = (function () {
           $dropdown = $this.find('.dropdown-menu')
 
       $(targetID).toggle().toggleClass('show')
+
+    })
+
+    // app.$el.get.show_desc.on('click', function (event) {
+    $(document).on('click', '.get--show_desc', function (event) {
+
+      event.preventDefault()
+
+      var $this         = $(this),
+          show_name     = $this.data('show-name'),
+          episode_date  = $this.data('episode-date'),
+          $show_desc    = $this.parent().parent().find('.show__desc-inner');
+
+      // console.log( show_name, episode_date )
+
+      tvdb.getSeriesID( show_name.toLowerCase(), function (series_id) {
+
+        tvdb.getEpisodesByAirDate(series_id, episode_date, function (episode) {
+
+          var episode = episode || {};
+
+          if ( episode.Overview == undefined ) {
+            $show_desc.html( 'Could not find episode synopsis.' )
+          } else {
+            $show_desc.html( episode.Overview )
+          }
+
+        })
+
+      })
 
     })
 
@@ -356,6 +390,7 @@ var APP = (function () {
               'season'              : show_info.season,
               'episode'             : show_info.episode,
               'link'                : show.link,
+              'pub_date'            : show.pubDate,
               'release_date'        : formatPubDate( show.pubDate ),
               'release_day_of_week' : formatPubDate( show.pubDate, 'day' ),
               'cover_image_src'     : app.dir.images + show_info.slug + '.png'
@@ -368,21 +403,6 @@ var APP = (function () {
             if ( dateIsToday( show.pubDate ) ) {
               calendar.today[day].push( data )
             }
-
-            /**
-             * EXPERIMENTAL - Get episode data via tvdb
-             */
-            // tvdb.getSeriesID( data.title.toLowerCase(), function (series_id) {
-
-            //   tvdb.getEpisodesByAirDate(series_id, show.pubDate, function (episode) {
-
-            //     var episode = episode || null;
-
-            //     data.desc = episode.Overview;
-
-            //   })
-
-            // })
 
 
             // Populate the template vars with real data
@@ -786,7 +806,7 @@ var APP = (function () {
         /**
          * GET /#import/:encodeduri
          */
-        'import:encodeduri' : function() {
+        'import/:encodeduri' : function(encoded_uri) {
           var feed_url = encoded_uri ? decodeURIComponent(atob(encoded_uri)) : '';
 
           _this.showView( app.$el.views.feed )

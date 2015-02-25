@@ -43,21 +43,35 @@ var TVDB = (function () {
 
     var _this = tvdb;
 
+  }
+
+
+  /**
+   * Demos
+   *
+   * getSeries()
+   * getSeriesID()
+   * getEpisodesByAirDate()
+   */
+  tvdb.demo = function() {
+
+    
     // EXAMPLE  - getSeries
-    _this.getSeries('modern family', true, function (series) {
+    tvdb.getSeries('modern family', true, function (series) {
       console.log('series', series)
     })
 
     // EXAMPLE  - getSeriesID & getEpisodesByAirDate
-    _this.getSeriesID('breaking bad', function (series_id) {
-      
-      _this.getEpisodesByAirDate(series_id, '2013-8-11', function (episodes) {
-        console.log('episodes', episodes)
+    tvdb.getSeriesID('breaking bad', function (series_id) {
+
+      console.log( 'series_id', series_id )
+
+      tvdb.getEpisodesByAirDate(series_id, '2013-8-11', function (episodes) {
+
+        console.log('episode', episode)
       })
 
     })
-
-
 
   }
 
@@ -192,7 +206,6 @@ var TVDB = (function () {
    */
   document.addEventListener('DOMContentLoaded', function (event) {
 
-    tvdb.init()
 
     
   })
