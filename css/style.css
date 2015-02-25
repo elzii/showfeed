@@ -372,6 +372,21 @@ body {
 }
 .text-left { text-align: left !important; }
 
+.col-inner {
+  border: 1px solid #eee;
+  width:100%;
+}
+.col-header {
+  background-color:#fbfbfb;
+  padding:15px;
+  border-bottom: 1px solid #eee;
+  font-size: 24px;
+  font-weight: 500;
+}
+.col-content {
+  padding: 15px;
+}
+
 
 .navbar-logo-icon {
   position: relative;
@@ -386,3 +401,26 @@ body {
   margin-right: 8px;
   top: -3px;
 }
+
+
+
+/**
+ * Helpers
+ */
+.flex-columns {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+  .flex-column {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+  .flex-column--half {
+    width:49%;
+  }

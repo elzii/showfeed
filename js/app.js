@@ -108,7 +108,6 @@ var APP = (function () {
     this.plugins()
     this.events()
     this.forms.init()
-
     
   }
 
@@ -144,6 +143,7 @@ var APP = (function () {
 
     })
 
+    // Display Show Synopsis
     $(document).on('click', '.get--show_desc', function (event) {
 
       event.preventDefault()
@@ -151,9 +151,10 @@ var APP = (function () {
       var $this         = $(this),
           show_name     = $this.data('show-name'),
           episode_date  = $this.data('episode-date'),
-          $show_desc    = $this.parent().parent().find('.show__desc-inner');
+          $show_desc    = $this.parent().parent().find('.show__desc-inner'),
+          html          = '';
 
-
+      // TVDB API Request
       tvdb.getSeriesID( show_name.toLowerCase(), function (series_id) {
 
         tvdb.getEpisodesByAirDate(series_id, episode_date, function (episode) {
@@ -163,12 +164,35 @@ var APP = (function () {
           if ( episode.Overview == undefined ) {
             $show_desc.html( 'Could not find episode synopsis.' ).fadeIn(150)
           } else {
-            $show_desc.html( episode.Overview ).fadeIn(150)
+
+            html += '<b>' + episode.EpisodeName + '</b> <span class="rating label label-warning" style="display:none;"></span><br>';
+            html += '' + episode.Overview + '<br>';
+
+            $show_desc.html( html ).fadeIn(150)
+
+            // Get IMDB Rating
+            $.ajax({
+              url: 'ajax.php',
+              type: 'POST',
+              data : {
+                action : 'imdb_episode_rating',
+                episode_title : episode.EpisodeName.toLowerCase()
+              }
+            })
+            .done(function (rating) {
+              if ( rating > 0 ) {
+                $show_desc.find('.rating').html( rating+' / 10' ).fadeIn(150)
+              } else {
+                $show_desc.find('.rating').html( 'No Reviews' ).fadeIn(150)
+              }
+            })
+
           }
 
         })
-
       })
+
+
 
     })
 
@@ -829,7 +853,11 @@ var APP = (function () {
       // Hide misc subview components
       app.$el.nav.upcoming.hide()
 
+      // Show current view
       $view.show()
+
+      // Hide loadoer (redundancy)
+      app.loader.hide()
 
       if ( app.config.debug ) console.log('%cROUTER:', 'color:#e65ad7', $view.selector )
     },

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>ShowRSS</title>
+  <title>ShowFeed</title>
 
   <!-- Favicon(s) -->
   <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
@@ -65,43 +65,70 @@
     <div class="container">
       <div class="row">
         
-        <div id="form--create_feed" class="col-sm-6">
-          <h3>Create New Feed</h3>
 
-          <hr>
+        <div class="col-sm-6">
+          <div class="col-inner">
 
-          <form id="form--create_feed" class="form-horizontal">
-            <div class="form-group">
-              <label class="col-sm-3 control-label text-left">Provider</label>
-              <div class="col-sm-9">
-                <p class="form-control-static"><a href="http://showrss.info" target="_blank">showrss.info</a></p>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="feed_url" class="col-sm-3 control-label text-left">Feed URL</label>
-              <div class="col-sm-9">
-                <input type="text" name="feed_url" class="form-control" placeholder="http://showrss.info/rss.php?user_id=207854&hd=0&proper=null" value="http://showrss.info/rss.php?user_id=207854&hd=0&proper=null">
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <div class="col-sm-12">
+            <header class="col-header">
+              <h3 class="m0">Create New Feed</h3>
+            </header>
+
+            <div class="col-content">
+              <form id="form--create_feed" class="form-horizontal">
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label text-left">Provider</label>
+                  <div class="col-sm-9">
+                    <p class="form-control-static"><a href="http://showrss.info" target="_blank">showrss.info</a></p>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="feed_url" class="col-sm-3 control-label text-left">Feed URL</label>
+                  <div class="col-sm-9">
+                    <input type="text" name="feed_url" class="form-control" placeholder="http://showrss.info/rss.php?user_id=207854&hd=0&proper=null" value="http://showrss.info/rss.php?user_id=207854&hd=0&proper=null">
+                  </div>
+                </div>
                 
-              </div>
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="col-sm-3 text-left">
+                    <button type="submit" class="btn btn-primary">Create Feed</button>
+                  </div>
+                  <div class="col-sm-9">
+                    <a name="your_feed" href="" class="" style="display:none;"></a>
+                  </div>
+                </div>
+
+              </form>
             </div>
 
-            <div class="form-group">
-              <div class="col-sm-3 text-left">
-                <button type="submit" class="btn btn-primary">Create Feed</button>
-              </div>
-              <div class="col-sm-9">
-                <a name="your_feed" href="" class="" style="display:none;"></a>
-              </div>
+          </div>
+        </div>
+
+        <div class="col-sm-6">
+          <div class="col-inner">
+            
+            <header class="col-header">
+              <h3 class="m0">Resources</h3>
+            </header>
+
+
+            <div class="col-content">
+
+              <ul>
+                <li><a href="http://www.imdb.com/search/title?num_votes=1000,&sort=user_rating,desc&title_type=tv_episode">IMDB Top 1000 TV Episodes</a></li>
+                <li><a href="http://thetvdb.com/wiki/index.php?title=Programmers_API" target="_blank">TVDB API</a></li>
+                <!-- <li><a href="" target="_blank"></a></li> -->
+              </ul>
+
             </div>
 
-          </form>
-          
-
+          </div>
 
         </div>
 
