@@ -1,14 +1,35 @@
 var APP = (function () {
 
-  var app = {}
+  /**
+   * Modules
+   *
+   * app
+   * tvdb
+   */
+  var app  = {}
+  var tvdb = window.TVDB;
 
+  console.log( tvdb )
 
   /**
    * Module Properties
    *
    * config
+   * url
    * data
    * $el
+   * settings
+   * dir
+   * feeds
+   * init
+   * plugins
+   * events
+   * forms
+   * loader
+   * routing
+   * 
+   * showFeed
+   * showSchedule
    * 
    */
   app = {
@@ -85,6 +106,7 @@ var APP = (function () {
     this.plugins()
     this.events()
     this.forms.init()
+
     
   }
 
@@ -145,8 +167,8 @@ var APP = (function () {
 
         var $this      = $(this),
             $submit    = $this.find('button[type=submit]'),
-            feed_url   = $this.find('input[name=feed_url]').val(),
-            $your_feed = $this.find('input[name=your_feed]');
+            feed_url   = $this.find('[name=feed_url]').val(),
+            $your_feed = $this.find('[name=your_feed]');
 
             feed_url   = btoa( feed_url )
 
@@ -157,12 +179,11 @@ var APP = (function () {
           .text('Success')
           .blur()
 
-        // Display new feed hash url
+        // Display new import hash url
         $your_feed
           .show()
-          .val( app.url.site + '#feed/' + feed_url )
-          .parent()
-          .addClass('has-success')
+          .text( 'Your Feed' )
+          .attr( 'href', app.url.site + '#import/' + feed_url )
         
           
 
@@ -203,15 +224,22 @@ var APP = (function () {
       }
     },
 
-    init: function() {
+    init: function(feed_url, schedule_url) {
 
-      var _this = app.showFeed;
+      var _this         = app.showFeed,
+          feed_url      = feed_url ? feed_url : app.feeds.showrss_all,
+          schedule_url  = schedule_url ? app.feeds.showrss_all : false
 
       app.loader.show()
 
-      // Render Show Feed
+      // Show Schedule
+      if ( schedule_url ) {
+        app.showSchedule.init( schedule_url ) 
+      }
+
+      // Show Feed
       this.renderShowFeed( {
-        url             : app.feeds.showrss_all,
+        url             : feed_url,
         template        : _this.template.list,
         sort_by_day     : true,
         container_class : 'container'
@@ -278,7 +306,19 @@ var APP = (function () {
           body_class      = options.body_class || '',
           sort_by_day     = options.sort_by_day || false,
           container_class = options.container_class || 'container-fluid'
-          template        = options.template || _this.template.grid
+          template        = options.template || _this.template.grid,
+          calendar        = {
+            today : [],
+            weekly : {
+              'mon' : [],
+              'tue' : [],
+              'wed' : [],
+              'thu' : [],
+              'fri' : [],
+              'sat' : [],
+              'sun' : []
+            }
+          }
 
       // Get the feed
       this.getShowFeed( url, function (items) {
@@ -326,8 +366,24 @@ var APP = (function () {
             var day = getDayNameFromPubDate( show.pubDate )        
 
             if ( dateIsToday( show.pubDate ) ) {
-              _this.calendar.today[day].push( data )
+              calendar.today[day].push( data )
             }
+
+            /**
+             * EXPERIMENTAL - Get episode data via tvdb
+             */
+            // tvdb.getSeriesID( data.title.toLowerCase(), function (series_id) {
+
+            //   tvdb.getEpisodesByAirDate(series_id, show.pubDate, function (episode) {
+
+            //     var episode = episode || null;
+
+            //     data.desc = episode.Overview;
+
+            //   })
+
+            // })
+
 
             // Populate the template vars with real data
             $html = populateTemplateVars( $html, data )
@@ -358,6 +414,7 @@ var APP = (function () {
               app.$el.shows.empty()
               app.$el.shows.append( $html )
             }
+
 
           })
 
@@ -479,14 +536,15 @@ var APP = (function () {
     /**
      * Initialize
      */
-    init: function() {
+    init: function( schedule_url ) {
 
-      var _this = app.showSchedule;
+      var _this         = app.showSchedule,
+          schedule_url  = schedule_url ? schedule_url : app.feeds.showrss_schedule;
 
       // Get the show schedule feed
       _this.getShowScheduleFeed( app.feeds.showrss_schedule, function (data) {
 
-        if ( app.config.debug ) console.log('%cCALLBACK:', 'color:#66d9ef', 'getShowScheduleFeed()' )
+        if ( app.config.debug ) console.group('%cCALLBACK:', 'color:#66d9ef', 'getShowScheduleFeed()' )
 
         // Populate the calendar object
         _this.populateShowCalendar( data, function (schedule) {
@@ -499,6 +557,7 @@ var APP = (function () {
             app.$el.nav.upcoming.show()
 
             if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'renderUpcomingShowList()')
+            console.groupEnd()
 
           })
         } )
@@ -590,9 +649,6 @@ var APP = (function () {
 
       callback( calendar.weekly )
 
-      if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'populateShowCalendar()' )
-      // if ( app.config.debug ) console.log( this.feeds.showrss_all )
-
     },
 
   
@@ -640,8 +696,6 @@ var APP = (function () {
       })
 
       callback()
-
-      if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'renderUpcomingShowList()' )
 
     },
 
@@ -702,51 +756,47 @@ var APP = (function () {
       var _this = app.routing;
 
 
-      /**
-       * GET /
-       */
-      routie('', function () {
-        // Redirect
-        routie('#home')
-      })
+      routie({
 
-      
-      /**
-       * GET /#home
-       */
-      routie('home', function () {
+        /**
+         * GET /
+         */
+        '': function() {
+          routie('#home')
+        },
 
-        _this.showView( app.$el.views.index )
-        _this.setActiveNavItem( 'home' )
-
-      })
-      
-      /**
-       * GET /#feed
-       */
-      routie('feed', function (page) {
+        /**
+         * GET /#home
+         */
+        'home': function() {
+          _this.showView( app.$el.views.index )
+          _this.setActiveNavItem( 'home' )
+        },
         
-        _this.showView( app.$el.views.feed )
-        _this.setActiveNavItem( 'feed' )
+        /**
+         * GET /#feed
+         */
+        'feed': function() {
+          _this.showView( app.$el.views.feed )
+          _this.setActiveNavItem( 'feed' )
 
-        app.showFeed.init()
-        app.showSchedule.init()
-         
+          app.showFeed.init( app.feeds.showrss_all, true )
+        },
+
+        /**
+         * GET /#import/:encodeduri
+         */
+        'import:encodeduri' : function() {
+          var feed_url = encoded_uri ? decodeURIComponent(atob(encoded_uri)) : '';
+
+          _this.showView( app.$el.views.feed )
+          _this.setActiveNavItem( 'feed' )
+
+          app.showFeed.init( feed_url, false )
+
+          console.log('loading feed uri: ', encoded_uri)
+        }
       })
-
-
-      /**
-       * GET /#feed/:encodeduri
-       */
-      // routie('feed/:encodeduri', function (encoded_uri) {
-
-      //   _this.showView( app.$el.views.feed )
-         
-      //   var encoded_uri = decodeURIComponent(atob(encoded_uri)) || '';
-
-      //   console.log('loading feed uri: ', encoded_uri)
-
-      // })
 
     },
 

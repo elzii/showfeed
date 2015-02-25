@@ -155,7 +155,8 @@ body {
  * 
  */
 .show--list {
-  height:115px;
+  min-height:115px;
+  height: auto;
   border-bottom: 1px solid #eee;
 }
   .show--list:last-child { border-bottom: none; }
@@ -169,8 +170,10 @@ body {
     position: relative;
     float: left;
     width: 175px;
-    height: 100%;
-    background-size: 100% auto;
+    /*height: 100%;*/
+    height: 115px;
+    background-size: auto 100%;
+    background-position: 50% 50%;
     background-repeat: no-repeat;
     /*border: 1px solid #999;*/
   }
@@ -200,6 +203,8 @@ body {
 
   .show--list .show__info {
     float: left;
+    width: calc(100% - 175px);
+    height: 100%;
     padding-left: 25px;
   }
 
