@@ -9,8 +9,6 @@ var APP = (function () {
   var app  = {}
   var tvdb = window.TVDB;
 
-  console.log( tvdb )
-
   /**
    * Module Properties
    *
@@ -156,8 +154,6 @@ var APP = (function () {
           episode_date  = $this.data('episode-date'),
           $show_desc    = $this.parent().parent().find('.show__desc-inner');
 
-      // console.log( show_name, episode_date )
-
       tvdb.getSeriesID( show_name.toLowerCase(), function (series_id) {
 
         tvdb.getEpisodesByAirDate(series_id, episode_date, function (episode) {
@@ -165,9 +161,9 @@ var APP = (function () {
           var episode = episode || {};
 
           if ( episode.Overview == undefined ) {
-            $show_desc.html( 'Could not find episode synopsis.' )
+            $show_desc.html( 'Could not find episode synopsis.' ).fadeIn(150)
           } else {
-            $show_desc.html( episode.Overview )
+            $show_desc.html( episode.Overview ).fadeIn(150)
           }
 
         })
@@ -283,7 +279,53 @@ var APP = (function () {
         app.$el.shows_container.show()
         app.loader.hide()
         
-        if ( app.config.debug ) console.log('%cCALLBACK:', 'color:#66d9ef', 'renderShowFeed()' )
+
+      })
+
+    },
+
+    bindEvents: function() {
+
+      console.log('events bound')
+
+      $('.show').hover(function (event) {
+
+        event.preventDefault()
+
+        var $this             = $(this),
+            request_complete  = $this.data('request-complete'),
+            show_name         = $this.find('.get--show_desc').data('show-name'),
+            episode_date      = $this.find('.get--show_desc').data('episode-date'),
+            $show_desc        = $this.find('.show__desc-inner');
+
+        if ( !request_complete ) {
+
+          tvdb.getSeries( show_name.toLowerCase(), true, function (series) {
+            console.log('series', series)
+          })
+
+          tvdb.getSeriesID( show_name.toLowerCase(), function (series_id) {
+
+            tvdb.getEpisodesByAirDate(series_id, episode_date, function (episode) {
+
+              var episode = episode || {};
+
+              if ( episode.Overview == undefined ) {
+                $show_desc.html( 'Could not find episode synopsis.' ).fadeIn(150)
+              } else {
+                $show_desc.html( episode.Overview ).fadeIn(150)
+              }
+
+              // Set flag
+              $this.data('request-complete', true)
+
+            })
+
+          })
+
+        } else {
+          console.log('Already got data')
+        }
 
       })
 
@@ -442,6 +484,8 @@ var APP = (function () {
           if ( sort_by_day ) {
 
             if ( app.config.debug ) console.log('%cSUBROUTINE:', 'color:#2b7723', 'getShowFeed( sort_by_day )')
+            if ( app.config.debug ) console.groupEnd()
+
 
             app.$el.shows.empty()
 
@@ -473,8 +517,11 @@ var APP = (function () {
           // Callback
           callback(items)
 
-        })
+          // Bind events
+          _this.bindEvents()
 
+          if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'populateShowCalendar()')
+        })
 
         if ( _this.debug ) console.log('Show Torrent Info: ', show_info )
 
@@ -577,7 +624,7 @@ var APP = (function () {
             app.$el.nav.upcoming.show()
 
             if ( app.config.debug ) console.log('%cFUNCTION:', 'color:#3db330', 'renderUpcomingShowList()')
-            console.groupEnd()
+            
 
           })
         } )

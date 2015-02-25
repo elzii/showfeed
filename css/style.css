@@ -210,9 +210,10 @@ body {
   .show--list .show__desc {
     display:table;
     float:left;
-    width: calc(50% - 175px);
+    width: calc(48%);
     height: 100%;
     padding: 10px 15px;
+    overflow:hidden;
   }
     .show--list .show__desc-inner {
       display:table-cell;

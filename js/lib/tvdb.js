@@ -4,13 +4,26 @@ var TVDB = (function () {
 
   tvdb = {
 
-    debug : true,
+    config : {
+      debug : true
+    },
 
     settings : {
       api_key : 'ADEA451797D45B34',
     },
+
+    url: {
+      root : window.location.href.match(/(localhost)/g) ? 'http://localhost/projects/showfeed/' : 'http://showfeed.io/',
+    },
     
     api : {
+
+      /**
+       * Banner
+       *
+       * @example - http://thetvdb.com/banners/graphical/273181-g5.jpg
+       */
+      banner_url : 'http://thetvdb.com/banners/',
 
       /**
        * Get Series
@@ -52,27 +65,32 @@ var TVDB = (function () {
    * getSeries()
    * getSeriesID()
    * getEpisodesByAirDate()
+   * getShowBanner()
    */
-  tvdb.demo = function() {
+  tvdb.demos = function() {
 
-    
-    // EXAMPLE  - getSeries
+    // DEMO  - getSeries
     tvdb.getSeries('modern family', true, function (series) {
-      console.log('series', series)
+      if ( tvdb.config.debug ) console.log('%cCALLBACK:', 'color:#66d9ef', 'getSeries("modern family")', series )
     })
 
-    // EXAMPLE  - getSeriesID & getEpisodesByAirDate
+    // DEMO - getShowBanner
+    tvdb.getShowBanner('breaking bad', function (banner) {
+      if ( tvdb.config.debug ) console.log('%cCALLBACK:', 'color:#66d9ef', 'getShowBanner("breaking bad")', banner )
+    })
+
+    // DEMO  - getSeriesID & getEpisodesByAirDate
     tvdb.getSeriesID('breaking bad', function (series_id) {
 
-      console.log( 'series_id', series_id )
+      if ( tvdb.config.debug ) console.log('%cCALLBACK:', 'color:#66d9ef', 'getSeriesID("breaking bad")', series_id )
 
-      tvdb.getEpisodesByAirDate(series_id, '2013-8-11', function (episodes) {
+      tvdb.getEpisodesByAirDate(series_id, '2013-8-11', function (episode) {
 
-        console.log('episode', episode)
+        if ( tvdb.config.debug ) console.log('%cCALLBACK:', 'color:#66d9ef', 'getEpisodesByAirDate("breaking bad", "2013-8-11")', episode )
+
       })
 
     })
-
   }
 
 
@@ -114,6 +132,36 @@ var TVDB = (function () {
 
   }
 
+
+
+
+  /**
+   * Get Show Banner
+   *
+   * @param {String}    series_name
+   * @param {Function}  callback
+   *
+   * @return {Object}   series
+   */
+  tvdb.getShowBanner = function(series_name, callback) {
+
+    var series_name = series_name || null;
+
+    this.getSeries(series_name, true, function (series) {
+      
+      if ( series ) {
+
+        var img_url = tvdb.api.banner_url + series.banner;
+
+        callback( img_url )
+
+        return 
+      } else {
+        callback( 'default.jpg' )
+      }
+    })
+
+  }
 
 
 
@@ -178,7 +226,7 @@ var TVDB = (function () {
     url = url + '?' + params;
 
     request = $.ajax({
-      url  : 'ajax.php',
+      url  : tvdb.url.root+'ajax.php',
       type : 'POST',
       data : {
         action : 'curl',
