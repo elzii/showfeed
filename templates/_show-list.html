@@ -6,14 +6,17 @@
     <h4 class="show__title">{{title}}</h4>
     <h3 class="show__sxe"><small>Season {{season}} Episode {{episode}}</small></h3 class="show__sxe">
     
-    <a href="{{link}}">
-      <span class="label label-large label-danger label-icon"><i class="glyphicon glyphicon-magnet"></i></span>
-    </a>
-    <span class="get--show_desc" data-show-name="{{title}}" data-episode-date="{{pub_date}}">
-      <span class="label label-large label-info label-icon"><i class="glyphicon glyphicon-info-sign"></i></span>
-    </span>
-    <span class="label label-large label-primary">{{release_day_of_week}}</span>
-    <span class="label label-large label-default">{{release_date}}</span>
+    <div class="show__meta">
+      <a href="{{link}}">
+        <span class="label label-large label-danger label-icon"><i class="glyphicon glyphicon-magnet"></i></span>
+      </a>
+      <span class="get--show_desc" data-show-name="{{title}}" data-episode-date="{{pub_date}}">
+        <span class="label label-large label-info label-icon"><i class="glyphicon glyphicon-info-sign"></i></span>
+      </span>
+      <!-- <span class="label label-large label-primary">{{release_day_of_week}}</span> -->
+      <!-- <span class="label label-large label-default">{{release_date}}</span> -->
+      <span class="rating label label-large label-warning" style="display:none;"></span>
+    </div>
 
   </div>
   <div class="show__desc">

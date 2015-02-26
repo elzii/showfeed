@@ -22,8 +22,8 @@ require '../includes/functions.php';
 
 $scraper = new DOM_Scraper;
 
-// $data = scrapeURL( 'http://www.imdb.com/search/title?title=one%20last%20ride&title_type=tv_episode', '//*[@class="results"]/tr[2]/td[3]/a/@href', true );
-$data = scrapeURL( 'http://www.imdb.com/search/title?title=Valediction&title_type=tv_episode', '//*[@class="results"]/tr[2]/td[3]/div[@class="user_rating"]/div[1]/span[4]/span[1]', true );
+// $data = scrapeURL( 'http://www.imdb.com/search/title?title_type=tv_series&title=breaking%20bad', '//*[@class="results"]/tr[2]/td[3]/a/@href', true );
+$data = scrapeURL( 'http://www.imdb.com/search/title?title_type=tv_episode&title=Valediction', '//*[@class="results"]/tr[2]/td[3]/div[@class="user_rating"]/div[1]/span[4]/span[1]', true );
 
 
 

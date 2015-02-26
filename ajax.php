@@ -18,34 +18,43 @@ if ( isset($_POST['action']) && $_POST['action'] == 'curl' ) {
   print $result;
 }
 
+
 /**
- * IMDB Show Title URL
- *
- * @param {String} $show_title  - 'parks and recreation'
+ * IMDB
  */
-if ( isset($_POST['action']) && $_POST['action'] == 'imdb_title_url' ) {
+if ( isset($_POST['action']) && $_POST['action'] == 'imdb' ) {
+  
+  /**
+   * IMDB Show Title URL
+   *
+   * @param  {String} $show_title 
+   * @return {String} $show_url
+   */
+  if ( isset($_POST['method']) && $_POST['method'] == 'show_url' ) {
 
-  $show_title  = isset($_POST['show_title']) ? $_POST['show_title'] : '';
+    $term       = isset($_POST['term']) ? $_POST['term'] : '';
+    $show_url   = scrapeIMDBTitleURL( urlencode( $term ) );
 
-  $title_url = scrapeIMDBTitleURL( urlencode( $show_title ) );
+    print $show_url;
+  }
 
-  print $title_url;
+  /**
+   * IMDB Episode Rating
+   *
+   * @param  {String} $episode_title
+   * @return {String} $episode_rating
+   */
+  if ( isset($_POST['method']) && $_POST['method'] == 'episode_rating' ) {
+
+    $term           = isset($_POST['term']) ? $_POST['term'] : '';
+    $episode_rating = scrapeIMDBEpisodeRating( urlencode( $term ) );
+    
+    print $episode_rating;
+  }
+
 }
 
 
-/**
- * IMDB Episode Rating
- *
- * @param {String} $show_title  - 'one last ride'
- */
-if ( isset($_POST['action']) && $_POST['action'] == 'imdb_episode_rating' ) {
-
-  $episode_title  = isset($_POST['episode_title']) ? $_POST['episode_title'] : '';
-
-  $episode_rating = scrapeIMDBEpisodeRating( urlencode( $episode_title ) );
-
-  print $episode_rating;
-}
 
 
 

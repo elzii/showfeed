@@ -8,6 +8,7 @@ var APP = (function () {
    */
   var app  = {}
   var tvdb = window.TVDB;
+  var imdb = window.IMDB;
 
   /**
    * Module Properties
@@ -108,6 +109,8 @@ var APP = (function () {
     this.plugins()
     this.events()
     this.forms.init()
+
+    this.showList.init()
     
   }
 
@@ -151,7 +154,8 @@ var APP = (function () {
       var $this         = $(this),
           show_name     = $this.data('show-name'),
           episode_date  = $this.data('episode-date'),
-          $show_desc    = $this.parent().parent().find('.show__desc-inner'),
+          $show_meta    = $this.parent(),
+          $show_desc    = $this.parent().parent().parent().find('.show__desc-inner'),
           html          = '';
 
       // TVDB API Request
@@ -165,25 +169,18 @@ var APP = (function () {
             $show_desc.html( 'Could not find episode synopsis.' ).fadeIn(150)
           } else {
 
-            html += '<b>' + episode.EpisodeName + '</b> <span class="rating label label-warning" style="display:none;"></span><br>';
+            html += '<b>' + episode.EpisodeName + '</b><br>';
             html += '' + episode.Overview + '<br>';
 
             $show_desc.html( html ).fadeIn(150)
 
             // Get IMDB Rating
-            $.ajax({
-              url: 'ajax.php',
-              type: 'POST',
-              data : {
-                action : 'imdb_episode_rating',
-                episode_title : episode.EpisodeName.toLowerCase()
-              }
-            })
-            .done(function (rating) {
-              if ( rating > 0 ) {
-                $show_desc.find('.rating').html( rating+' / 10' ).fadeIn(150)
+            imdb.getEpisodeRating( episode.EpisodeName.toLowerCase(), function (rating) {
+
+              if ( parseFloat(rating) > 0 ) {
+                $show_meta.find('.rating').html( rating+' / 10' ).fadeIn(150)
               } else {
-                $show_desc.find('.rating').html( 'No Reviews' ).fadeIn(150)
+                $show_meta.find('.rating').html( 'No Reviews' ).fadeIn(150)
               }
             })
 
@@ -906,8 +903,110 @@ var APP = (function () {
 
 
 
+  /**
+   * Show List
+   * 
+   */
+  app.showList = {
+
+    file : 'data/show-list.json',
+
+    /**
+     * Initialize
+     */
+    init: function() {
+
+      var _this = app.showList;
+
+      _this.createInputElement(function () {
+        _this.eventBindings()
+      })
+
+    },
+
+    /**
+     * Read Show List JSON
+     * 
+     * @param  {String}   file     
+     * @param  {Function} callback 
+     */
+    readShowListJSON: function(file, callback) {
+
+      var file = file ? file : '',
+          list = '';
+
+      $.ajax({
+        url: app.url.site + file,
+        type: 'GET',
+        dataType: 'json'
+      })
+      .done(function (data) {
+        console.log("success", data);
+        callback(data.shows)
+      })
+      .fail(function (data) {
+        console.log("error", data);
+        callback(data)
+      })
+      
+
+    },
 
 
+    createInputElement: function(callback) {
+
+      var _this = app.showList,
+          input = document.getElementById('input--show_list');
+
+      _this.readShowListJSON( _this.file , function (list) {
+        
+        // Create awesomplete element
+        new Awesomplete( input, {
+          list : list
+        })
+
+        callback()
+
+      })
+
+    },
+
+    /**
+     * Event Bindings
+     */
+    eventBindings: function() {
+
+      var _this  = app.showList,
+          $input = $('#input--show_list'),
+          $list  = $('#list--show_list');
+
+      $(document).delegate( $input.selector, 'submit', function (event) {
+        event.preventDefault()
+
+        console.log('form submitted')
+      })
+      // Add selection to list
+      document.addEventListener('awesomplete-select', function (event) {
+
+        var show_name = event.text;
+
+        $input.val('')
+
+        $list.append('<li>' + show_name + '</li>')
+
+      })
+
+      // Clear after selection complete
+      document.addEventListener('awesomplete-selectcomplete', function (event) {
+
+        $input.val('')
+
+      })
+
+    }
+
+
+  }
 
 
 

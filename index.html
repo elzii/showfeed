@@ -16,6 +16,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
   
+  <!-- Vendor Styles -->  
+  <link rel="stylesheet" href="css/vendor/awesomplete.css">
+
   <!-- APP Styles -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/loader.css">
@@ -63,14 +66,61 @@
   <!-- GET / -->
   <div id="view--index" class="view">
     <div class="container">
-      <div class="row">
+      <div class="row row-padded">
         
+
+
+
+
+        <div class="col-sm-6">
+          <div class="col-inner">
+            
+            <header class="col-header">
+              <h3 class="m0">Create New Feed</h3>
+            </header>
+
+            <div class="col-content">
+              
+              <form id="form--add_shows" class="form-horizontal">
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label text-left">Search</label>
+                  <div class="col-sm-9">
+                    <input id="input--show_list">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label text-left">List</label>
+                  <div class="col-sm-9">
+                    <ul id="list--show_list" class="list-blank"></ul>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="col-sm-3 text-left">
+                    <!-- <button type="submit" class="btn btn-primary">Save</button> -->
+                  </div>
+                  <div class="col-sm-9">
+                    
+                  </div>
+                </div>
+
+
+              </form>
+
+            </div>
+
+          </div>
+        </div>
+
+
 
         <div class="col-sm-6">
           <div class="col-inner">
 
             <header class="col-header">
-              <h3 class="m0">Create New Feed</h3>
+              <h3 class="m0">Import ShowRSS Feed</h3>
             </header>
 
             <div class="col-content">
@@ -97,7 +147,7 @@
 
                 <div class="form-group">
                   <div class="col-sm-3 text-left">
-                    <button type="submit" class="btn btn-primary">Create Feed</button>
+                    <button type="submit" class="btn btn-primary">Import Feed</button>
                   </div>
                   <div class="col-sm-9">
                     <a name="your_feed" href="" class="" style="display:none;"></a>
@@ -110,6 +160,11 @@
           </div>
         </div>
 
+
+      </div><!-- .row -->
+
+
+      <div class="row row-padded">
         <div class="col-sm-6">
           <div class="col-inner">
             
@@ -117,10 +172,10 @@
               <h3 class="m0">Resources</h3>
             </header>
 
-
             <div class="col-content">
 
               <ul>
+                <li><a href="showrss.info">ShowRSS</a></li>
                 <li><a href="http://www.imdb.com/search/title?num_votes=1000,&sort=user_rating,desc&title_type=tv_episode">IMDB Top 1000 TV Episodes</a></li>
                 <li><a href="http://thetvdb.com/wiki/index.php?title=Programmers_API" target="_blank">TVDB API</a></li>
                 <!-- <li><a href="" target="_blank"></a></li> -->
@@ -132,9 +187,10 @@
 
         </div>
 
+      </div><!-- .row -->
 
-      </div>
     </div>
+
   </div>
 
   <!-- GET /#feed -->
@@ -152,9 +208,11 @@
 <!-- Javascript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
-<script src="js/lib/routie.js"></script>
+<script src="js/vendor/routie.js"></script>
+<script src="js/vendor/awesomplete.min.js"></script>
 
 <script src="js/lib/tvdb.js"></script>
+<script src="js/lib/imdb.js"></script>
 
 <script src="js/app.js"></script>
 
