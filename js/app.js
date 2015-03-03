@@ -6,9 +6,11 @@ var APP = (function () {
    * app
    * tvdb
    */
-  var app  = {}
-  var tvdb = window.TVDB;
-  var imdb = window.IMDB;
+  var app     = {}
+  var storage = window.LSTORE;
+  var tvdb    = window.TVDB;
+  var imdb    = window.IMDB;
+  var kat     = window.KAT;
 
   /**
    * Module Properties
@@ -74,7 +76,10 @@ var APP = (function () {
       views : {
         index : $('#view--index'),
         feed : $('#view--feed'),
-      }
+        debug : $('#view--debug'),
+      },
+
+      debug : $('#debug'),
     },
 
     settings : {
@@ -111,6 +116,8 @@ var APP = (function () {
     this.forms.init()
 
     this.showList.init()
+
+    this.environmentVars()
     
   }
 
@@ -218,10 +225,16 @@ var APP = (function () {
 
         var $this      = $(this),
             $submit    = $this.find('button[type=submit]'),
-            feed_url   = $this.find('[name=feed_url]').val(),
+            $alert     = $this.find('.alert'),
+            user_id    = $this.find('[name=user_id]').val(),
             $your_feed = $this.find('[name=your_feed]');
 
-            feed_url   = btoa( feed_url )
+        $alert.hide()  
+        
+        if ( !user_id || user_id === undefined || user_id === '' || user_id.length < 6 ) {
+          $alert.show()
+          return false;
+        } 
 
         // Toggle submit classes
         $submit
@@ -234,7 +247,7 @@ var APP = (function () {
         $your_feed
           .show()
           .text( 'Your Feed' )
-          .attr( 'href', app.url.site + '#import/' + feed_url )
+          .attr( 'href', app.url.site + '#import/' + user_id )
         
           
 
@@ -282,6 +295,13 @@ var APP = (function () {
           schedule_url  = schedule_url ? app.feeds.showrss_all : false
 
       app.loader.show()
+
+      // Prevent re-running unless forced refresh
+      // if ( app.$el.shows.children().length > 0 ) {
+      //   app.loader.hide()
+      //   app.$el.nav.upcoming.show()
+      //   return false;
+      // }
 
       // Show Schedule
       if ( schedule_url ) {
@@ -606,10 +626,13 @@ var APP = (function () {
 
 
     hide: function() {
-
       app.$el.shows_upcoming.hide()
       app.$el.nav.upcoming.hide()
+    },
 
+    show: function() {
+      app.$el.shows_upcoming.show()
+      app.$el.nav.upcoming.show()
     },
 
 
@@ -822,10 +845,16 @@ var APP = (function () {
         },
 
         /**
-         * GET /#import/:encodeduri
+         * GET /#import/:id
          */
-        'import/:encodeduri' : function(encoded_uri) {
-          var feed_url = encoded_uri ? decodeURIComponent(atob(encoded_uri)) : '';
+        'import/:id' : function(id) {
+
+          // var feed_url = encoded_uri ? decodeURIComponent(atob(encoded_uri)) : '';
+          
+          var id        = id ? id : '207854',
+              feed_url  = 'http://showrss.info/rss.php?user_id='+id+'hd=0&proper=null';
+
+          console.log(feed_url)
 
           _this.showView( app.$el.views.feed )
           _this.setActiveNavItem( 'feed' )
@@ -833,7 +862,23 @@ var APP = (function () {
           app.showFeed.init( feed_url, false )
 
           console.log('loading feed uri: ', encoded_uri)
-        }
+        },
+
+        /**
+         * GET /#debug
+         */
+        'debug': function() {
+
+          _this.showView( app.$el.views.debug )
+          _this.setActiveNavItem( 'debug' )
+
+          app.debug.init({
+            kat : true,
+            imdb : true,
+            tvdb : true
+          })
+        },
+
       })
 
     },
@@ -899,17 +944,17 @@ var APP = (function () {
 
 
 
-
-
-
-
   /**
    * Show List
    * 
    */
   app.showList = {
 
+    debug : false,
+
     file : 'data/show-list.json',
+
+    db : 'my-shows',
 
     /**
      * Initialize
@@ -918,9 +963,27 @@ var APP = (function () {
 
       var _this = app.showList;
 
-      _this.createInputElement(function () {
-        _this.eventBindings()
+
+      // Set DB
+      storage.getOrSet(_this.db, [])
+      // storage.getOrSet(_this.db, ['Archer (2009)', 'Arrow'])
+
+      // Read show list
+      _this.readShowListJSON( _this.file , function (list) {
+
+        // Create the input element
+        _this.createInputElement(list, function () {
+
+          // Bind events
+          _this.eventBindings()
+
+          // Populate existing data
+          _this.displayShowList()
+
+        })
+
       })
+      
 
     },
 
@@ -932,8 +995,9 @@ var APP = (function () {
      */
     readShowListJSON: function(file, callback) {
 
-      var file = file ? file : '',
-          list = '';
+      var _this = app.showList,
+          file  = file ? file : '',
+          list  = '';
 
       $.ajax({
         url: app.url.site + file,
@@ -941,7 +1005,9 @@ var APP = (function () {
         dataType: 'json'
       })
       .done(function (data) {
-        console.log("success", data);
+
+        if ( _this.debug ) console.log('%cAJAX:', 'color:#d76c15', 'app.showList.readShowListJSON()', data.shows)
+
         callback(data.shows)
       })
       .fail(function (data) {
@@ -953,26 +1019,31 @@ var APP = (function () {
     },
 
 
-    createInputElement: function(callback) {
+    /**
+     * Create Awesomplete Input Element
+     * 
+     * @param  {Function} callback
+     */
+    createInputElement: function(list, callback) {
 
       var _this = app.showList,
           input = document.getElementById('input--show_list');
 
-      _this.readShowListJSON( _this.file , function (list) {
-        
-        // Create awesomplete element
-        new Awesomplete( input, {
-          list : list
-        })
-
-        callback()
-
+      // Create awesomplete element
+      var awesomplete = new Awesomplete( input, {
+        list : list
       })
+
+      callback()
 
     },
 
     /**
      * Event Bindings
+     *
+     * submit
+     * awesomplete-select
+     * awesomplete-selectcomplete
      */
     eventBindings: function() {
 
@@ -980,19 +1051,23 @@ var APP = (function () {
           $input = $('#input--show_list'),
           $list  = $('#list--show_list');
 
-      $(document).delegate( $input.selector, 'submit', function (event) {
+      // Submit
+      $input.on('submit', function (event) {
         event.preventDefault()
 
         console.log('form submitted')
       })
-      // Add selection to list
+
+      // Add selection to list && check for dupes
       document.addEventListener('awesomplete-select', function (event) {
 
         var show_name = event.text;
 
+        // Clear input and show on screen
         $input.val('')
+        // $list.append('<li>' + show_name + '</li>')
 
-        $list.append('<li>' + show_name + '</li>')
+        _this.addShowToList( show_name )
 
       })
 
@@ -1002,6 +1077,60 @@ var APP = (function () {
         $input.val('')
 
       })
+
+    },
+
+    /**
+     * Add Show To List
+     * 
+     * @param {String}   show     
+     * @param {Function} callback 
+     */
+    addShowToList: function(show, callback) {
+
+      var _this   = app.showList,
+          db      = _this.db;
+
+      if ( $.inArray(show, storage.get(db)) >= 0 ) {
+        console.log('Duplicate', show)
+      } else { 
+        var arr = storage.get(db)
+            arr.push(show)
+
+        // Updated LS DB
+        storage.set(db, arr)
+        // Display the list
+        _this.displayShowList(arr)
+      } 
+      
+    },
+
+    /**
+     * Display Show List
+     * 
+     * @param  {Array}   list     
+     * @param  {Function} callback 
+     */
+    displayShowList: function(list, callback) {
+
+      var _this = app.showList,
+          db    = _this.db,
+          data  = storage.get(db),
+          $list = $('#list--show_list');
+
+      // If no list provided, show current from LS
+      if ( !list || list === undefined ) {
+        $.each( data, function (i, show) {
+          $list.append('<li>' + show + '</li>')
+        })
+      } else {
+        // Update list 
+        $list.empty()
+
+        $.each( list, function (i, show) {
+          $list.append('<li>' + show + '</li>')
+        })
+      }
 
     }
 
@@ -1015,7 +1144,134 @@ var APP = (function () {
 
 
 
+  /**
+   * Debug/Tests
+   * 
+   * @param  {Object} options [kat, imdb, tvdb]
+   * 
+   */
+  app.environmentVars = function() {
 
+    // Show [debug] on local env only
+    if ( app.config.environment === 'development' ) {
+      $('[debug]').attr('style', 'display:block !important;')
+    }
+
+
+  }
+
+
+
+
+
+
+  /**
+   * Debug/Tests
+   * 
+   * @param  {Object} options [kat, imdb, tvdb]
+   * 
+   */
+  app.debug = {
+
+    init: function(options) {
+
+      var _this   = app.debug,
+          options = options ? options : {};
+
+      // Show loader
+      app.loader.show()
+
+      // Prevent re-running unless forced refresh
+      if ( app.$el.debug.children().length > 0 ) {
+        app.loader.hide()
+        return false;
+      }
+
+      // kat.js
+      if ( options.kat ) {
+        _this.kat(function (data) {
+          _this.output('kat.js', data)
+          app.loader.hide()
+        })
+      }
+
+      // imdb
+      if ( options.imdb ) {
+        _this.imdb(function (data) {
+          _this.output('imdb.js', data)
+          app.loader.hide()
+        })
+      }
+
+    },
+
+    kat: function(callback) {
+
+      var arr = [];
+
+      // Build EZTV Feed (get x pages from user:eztv )
+      kat.buildEZTVFeed( 5, function (data) {
+      
+        $.each( data, function (i, torrent) {
+          arr.push( torrent )
+        })
+
+        callback( arr )
+
+      })
+
+    },
+
+    imdb: function(callback) {
+
+      var arr = [];
+
+      // DEMO - Get Show URL
+      imdb.getShowURL('breaking bad', function (show_url) {
+        arr.push( show_url )
+
+        // DEMO - Get Episode Rating
+        imdb.getEpisodeRating('ozymandias', function (rating) {
+          arr.push( rating )
+
+          callback( arr )
+        })
+
+        
+      })
+
+
+
+    },
+
+
+    /**
+     * Output
+     * 
+     * @param  {String} title 
+     * @param  {Object} data  
+     */
+    output: function(title, data) {
+
+      app.$el.debug.append('\
+        <div class="row row-padded"> \
+          <div class="col-sm-12"> \
+            <div class="col-inner"> \
+              <header class="col-header"> \
+                <h3 class="m0">' + title + '</h3> \
+              </header> \
+              <div class="col-content"> \
+                <pre class="pre-scroll">' + JSON.stringify(data, null, 2) + '</pre> \
+              </div> \
+            </div> \
+          </div> \
+        </div> \
+      ')
+
+    }
+
+
+  }
 
 
 

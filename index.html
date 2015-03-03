@@ -39,6 +39,8 @@
 
     <div id="nav--main" class="nav navbar-nav">
 
+      <li debug><a href="#debug">Debug</a></li>
+
       <li><a href="#feed">Feed</a></li>
 
       <li id="nav--upcoming" class="dropdown" style="display:none;">
@@ -47,6 +49,7 @@
           <div class="shows__upcoming-list"></div>
         </ul>
       </li>
+
 
     </div>
 
@@ -70,13 +73,11 @@
         
 
 
-
-
         <div class="col-sm-6">
           <div class="col-inner">
             
             <header class="col-header">
-              <h3 class="m0">Create New Feed</h3>
+              <h3 class="m0">Your Feed <small class="small-right">Create or Add</small></h3>
             </header>
 
             <div class="col-content">
@@ -120,24 +121,24 @@
           <div class="col-inner">
 
             <header class="col-header">
-              <h3 class="m0">Import ShowRSS Feed</h3>
+              <h3 class="m0">Import Feed <small class="small-right"><a href="http://showrss.info">showrss.info</a></small></h3>
             </header>
 
             <div class="col-content">
               <form id="form--create_feed" class="form-horizontal">
 
+                <div class="alert alert-danger" style="display:none;">
+                  <span class="glyphicon glyphicon-exclamation-sign" style="top:2px;margin-right:2px;"></span>
+                  Provide a valid ShowRSS user ID
+                </div>
+
                 <div class="form-group">
-                  <label class="col-sm-3 control-label text-left">Provider</label>
+                  <label for="user_id" class="col-sm-3 control-label text-left">User ID</label>
                   <div class="col-sm-9">
-                    <p class="form-control-static"><a href="http://showrss.info" target="_blank">showrss.info</a></p>
+                    <input type="text" name="user_id" class="form-control" placeholder="207854" value="">
                   </div>
                 </div>
-                <div class="form-group">
-                  <label for="feed_url" class="col-sm-3 control-label text-left">Feed URL</label>
-                  <div class="col-sm-9">
-                    <input type="text" name="feed_url" class="form-control" placeholder="http://showrss.info/rss.php?user_id=207854&hd=0&proper=null" value="http://showrss.info/rss.php?user_id=207854&hd=0&proper=null">
-                  </div>
-                </div>
+
                 
                 <div class="form-group">
                   <div class="col-sm-12">
@@ -150,7 +151,7 @@
                     <button type="submit" class="btn btn-primary">Import Feed</button>
                   </div>
                   <div class="col-sm-9">
-                    <a name="your_feed" href="" class="" style="display:none;"></a>
+                    <a name="your_feed" href="" class="anchor-block" style="display:none;"></a>
                   </div>
                 </div>
 
@@ -164,7 +165,7 @@
       </div><!-- .row -->
 
 
-      <div class="row row-padded">
+      <div class="row row-padded" style="display:none;">
         <div class="col-sm-6">
           <div class="col-inner">
             
@@ -200,6 +201,14 @@
     </div>
   </div>
 
+
+  <!-- GET /#debug -->
+  <div id="view--debug" class="view">
+    <div class="container">
+      <div id="debug"></div>
+    </div>
+  </div>
+
 </div>
 
 
@@ -211,6 +220,9 @@
 <script src="js/vendor/routie.js"></script>
 <script src="js/vendor/awesomplete.min.js"></script>
 
+<script src="js/lib/storage.js"></script>
+
+<script src="js/lib/kat.js"></script>
 <script src="js/lib/tvdb.js"></script>
 <script src="js/lib/imdb.js"></script>
 
