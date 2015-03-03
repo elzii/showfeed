@@ -117,7 +117,7 @@ var APP = (function () {
 
     this.showList.init()
 
-    this.environmentVars()
+    this.environment()
     
   }
 
@@ -212,30 +212,55 @@ var APP = (function () {
       var _this = app.forms;
 
       _this.create_feed()
+
+
     },
 
 
+    /**
+     * Create Feed
+     */
     create_feed: function() {
 
-      var $form = app.$el.form.create_feed;
+      var $form      = app.$el.form.create_feed,
+          $alert     = $form.find('.alert'),
+          $submit    = $form.find('button[type=submit]'),
+          $your_feed = $form.find('[name=your_feed]');
+
+      $form.on('keyup', function (event) {
+
+        resetState()
+        
+      })
 
       $form.on('submit', function (event) {
 
         event.preventDefault()
 
         var $this      = $(this),
-            $submit    = $this.find('button[type=submit]'),
-            $alert     = $this.find('.alert'),
-            user_id    = $this.find('[name=user_id]').val(),
-            $your_feed = $this.find('[name=your_feed]');
+            user_id    = $this.find('[name=user_id]').val();
 
-        $alert.hide()  
-        
+        $alert.hide()
+
+
         if ( !user_id || user_id === undefined || user_id === '' || user_id.length < 6 ) {
           $alert.show()
           return false;
         } 
 
+        successState( user_id )
+
+        if ( app.config.debug ) console.log('%cFORM:', 'color:#ec344a', 'create_feed' )
+      })
+
+      /**
+       * Form States
+       *
+       * success
+       * error
+       * reset
+       */
+      function successState(user_id) {
         // Toggle submit classes
         $submit
           .toggleClass('btn-primary btn-success')
@@ -248,11 +273,16 @@ var APP = (function () {
           .show()
           .text( 'Your Feed' )
           .attr( 'href', app.url.site + '#import/' + user_id )
-        
-          
+      }
 
-        if ( app.config.debug ) console.log('%cFORM:', 'color:#ec344a', 'create_feed' )
-      })
+      function errorState() {
+
+      }
+
+      function resetState() {
+        $submit.removeClass('btn-success').addClass('btn-primary').removeAttr('disabled').text('Import Feed')
+        $your_feed.hide()
+      }
 
     },
 
@@ -288,20 +318,25 @@ var APP = (function () {
       }
     },
 
-    init: function(feed_url, schedule_url) {
+    init: function(feed_url, schedule_url, refresh) {
 
       var _this         = app.showFeed,
           feed_url      = feed_url ? feed_url : app.feeds.showrss_all,
-          schedule_url  = schedule_url ? app.feeds.showrss_all : false
+          schedule_url  = schedule_url ? app.feeds.showrss_all : false,
+          refresh       = refresh ? refresh : false;
 
       app.loader.show()
 
+      if ( refresh ) {
+        app.$el.shows.empty()
+      }
+
       // Prevent re-running unless forced refresh
-      // if ( app.$el.shows.children().length > 0 ) {
-      //   app.loader.hide()
-      //   app.$el.nav.upcoming.show()
-      //   return false;
-      // }
+      if ( app.$el.shows.children().length > 0 && !refresh ) {
+        app.loader.hide()
+        app.$el.nav.upcoming.show()
+        return false;
+      }
 
       // Show Schedule
       if ( schedule_url ) {
@@ -859,7 +894,7 @@ var APP = (function () {
           _this.showView( app.$el.views.feed )
           _this.setActiveNavItem( 'feed' )
 
-          app.showFeed.init( feed_url, false )
+          app.showFeed.init( feed_url, false, true )
 
           console.log('loading feed uri: ', encoded_uri)
         },
@@ -1145,12 +1180,12 @@ var APP = (function () {
 
 
   /**
-   * Debug/Tests
+   * Environment Settings
    * 
    * @param  {Object} options [kat, imdb, tvdb]
    * 
    */
-  app.environmentVars = function() {
+  app.environment = function() {
 
     // Show [debug] on local env only
     if ( app.config.environment === 'development' ) {
@@ -1203,6 +1238,14 @@ var APP = (function () {
         })
       }
 
+      // tvdb
+      if ( options.tvdb ) {
+        _this.tvdb(function (data) {
+          _this.output('imdb.js', data)
+          app.loader.hide()
+        })
+      }
+
     },
 
     kat: function(callback) {
@@ -1240,7 +1283,31 @@ var APP = (function () {
         
       })
 
+    },
 
+    tvdb: function(callback) {
+
+      var arr = [];
+
+      // DEMO  - getSeriesID
+      tvdb.getSeriesID('breaking bad', function (series_id) {
+
+        arr.push( series_id )
+
+        // DEMO - getShowBanner
+        tvdb.getShowBanner('breaking bad', function (banner) {
+
+          arr.push( banner )
+          
+          // DEMO - getEpisodesByAirDate
+          tvdb.getEpisodesByAirDate(series_id, '2013-8-11', function (episode) {
+
+            arr.push( episode )
+
+            callback( arr )
+          })
+        })
+      })
 
     },
 
