@@ -1,4 +1,6 @@
-var APP = (function () {
+'use strict'
+
+var APP = (function ($) {
 
   /**
    * Modules
@@ -124,7 +126,7 @@ var APP = (function () {
 
 
   /**
-   * Plugins 
+   * Plugins
    */
   app.plugins = function() {
 
@@ -136,7 +138,7 @@ var APP = (function () {
 
 
   /**
-   * Event Listeners 
+   * Event Listeners
    */
   app.events = function() {
 
@@ -218,7 +220,7 @@ var APP = (function () {
 
 
     /**
-     * Create Feed
+     * Create Feed 
      */
     create_feed: function() {
 
@@ -1773,4 +1775,4 @@ var APP = (function () {
 
 
   return app;
-}());
+})(jQuery);
