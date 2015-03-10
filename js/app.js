@@ -1,5 +1,3 @@
-'use strict'
-
 var APP = (function ($) {
 
   /**
@@ -10,6 +8,7 @@ var APP = (function ($) {
    */
   var app     = {}
   var storage = window.LSTORE;
+  var stencil = window.STENCIL;
   var tvdb    = window.TVDB;
   var imdb    = window.IMDB;
   var kat     = window.KAT;
@@ -885,20 +884,17 @@ var APP = (function ($) {
          * GET /#import/:id
          */
         'import/:id' : function(id) {
-
-          // var feed_url = encoded_uri ? decodeURIComponent(atob(encoded_uri)) : '';
           
           var id        = id ? id : '207854',
               feed_url  = 'http://showrss.info/rss.php?user_id='+id+'hd=0&proper=null';
 
-          console.log(feed_url)
-
           _this.showView( app.$el.views.feed )
           _this.setActiveNavItem( 'feed' )
 
+          app.showSchedule.hide();
+
           app.showFeed.init( feed_url, false, true )
 
-          console.log('loading feed uri: ', encoded_uri)
         },
 
         /**
@@ -1243,7 +1239,7 @@ var APP = (function ($) {
       // tvdb
       if ( options.tvdb ) {
         _this.tvdb(function (data) {
-          _this.output('imdb.js', data)
+          _this.output('tvdb.js', data)
           app.loader.hide()
         })
       }
